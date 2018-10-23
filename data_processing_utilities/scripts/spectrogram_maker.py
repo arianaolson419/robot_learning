@@ -39,10 +39,10 @@ class SpectrogramMaker(object):
 		""" Saves all of the spectrograms to the specified output path with the same filename as input
 		"""
 		for spectrogram in self.all_spectrograms:
-			t, f, Sxx, basepath = spectrogram
-			output_path = join(self.output_path, basepath) + ".png"
+			(f, t, Sxx), basepath = spectrogram
+			output_path = join(self.output_path, basepath[:-3]) + "png"
 			plt = self.plot_spectrogram(f, t, Sxx)
-			misc.imsave(output_path, plt)
+			plt.savefig(output_path, bbox_inches='tight', dpi=300, frameon='false')
 
 
 	def make_and_show_dummy(self):
@@ -64,6 +64,6 @@ class SpectrogramMaker(object):
 
 
 if __name__ == '__main__':
-	spectrogram_maker = SpectrogramMaker("AudioData/DC", "spectrograms/Data")
+	spectrogram_maker = SpectrogramMaker("AudioData/DC", "Spectrograms/DC")
 	spectrogram_maker.make_all_spectrograms()
 	spectrogram_maker.save_spectrograms()
