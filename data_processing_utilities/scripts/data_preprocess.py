@@ -5,6 +5,7 @@ from spectrogram_maker import SpectrogramMaker
 import numpy as np
 import matplotlib.pyplot as plt
 
+import argparse
 import re
 
 SAVEE_EMOTION_FULL_NAME = {'a': 'anger', 'd': 'disgust', 'f': 'fear', 'h': 'happiness', 'n': 'neutral', 'sa': 'sadness', 'su': 'surprise'}
@@ -22,8 +23,14 @@ def sample_info(filename):
     return emotion_label, sentence_label
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    FLAGS = None
+    parser.add_argument('--audio_path', type=str, default='', help="""The
+            absolute path to the directory containing the audio examples. Use
+            $HOME/catkin_ws/src/robot_learning/AudioData""")
+    FLAGS, _ = parser.parse_known_args()
     example_file = '/home/ariana/catkin_ws/src/robot_learning/AudioData/DC/a01.wav'
-    spectrogram_maker = SpectrogramMaker('/home/ariana/catkin_ws/src/robot_learning/AudioData', '/home/ariana/catkin_ws/src/robot_learning/Spectrograms')
+    spectrogram_maker = SpectrogramMaker(FLAGS.audio_path, '/home/ariana/catkin_ws/src/robot_learning/Spectrograms')
     spectrogram = spectrogram_maker.make_spectrogram(example_file)
     plt.imshow(spectrogram[2].transpose())
     plt.show()
