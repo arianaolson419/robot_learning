@@ -20,7 +20,6 @@ class SpectrogramMaker(object):
                 """ Makes a spectrogram for the given path
                 """
                 data, rate = librosa.load(path, sr=16000, res_type='scipy')
-                print(data.dtype)
                 S = np.abs(librosa.stft(data))
                 return S
 
@@ -30,13 +29,10 @@ class SpectrogramMaker(object):
                 for path in self.input_audio_paths:
                         self.all_spectrograms.append([self.make_spectrogram(path), basename(path)])
 
-        def plot_spectrogram(self, f, t, Sxx):
+        def plot_spectrogram(self, Sxx):
                 """ Plots the given spectrogram
                 """
                 pt = librosa.display.specshow(librosa.amplitude_to_db(Sxx, ref=np.max), y_axis='log', x_axis='time')
-                #plt.pcolormesh(t, f, Sxx)
-                #plt.ylabel('Frequency [Hz]')
-                #plt.xlabel('Time [sec]')
                 plt.show()
                 return pt
 
@@ -44,10 +40,10 @@ class SpectrogramMaker(object):
                 """ Saves all of the spectrograms to the specified output path with the same filename as input
                 """
                 for spectrogram in self.all_spectrograms:
-                        (f, t, Sxx), basepath = spectrogram
+                        D, basepath = spectrogram
                         output_path = join(self.output_path, basepath[:-3]) + "png"
-                        plt = self.plot_spectrogram(f, t, Sxx)
-                        plt.savefig(output_path, bbox_inches='tight', dpi=300, frameon='false')
+                        pt = self.plot_spectrogram(D)
+                        plt.savefig(output_path)
 
 
         def make_and_show_dummy(self):
@@ -69,9 +65,9 @@ class SpectrogramMaker(object):
 
 
 if __name__ == '__main__':
-        #spectrogram_maker = SpectrogramMaker("AudioData/DC", "Spectrograms/DC")
-        spectrogram_maker = SpectrogramMaker('/home/ariana/catkin_ws/src/robot_learning/AudioData/DC', '/tmp/SpecData')
-        spectrogram_maker.make_spectrogram('/home/ariana/catkin_ws/src/robot_learning/AudioData/DC/a01.wav')
-        spectrogram_maker.make_and_show_dummy()
-        #spectrogram_maker.make_all_spectrograms()
-        #spectrogram_maker.save_spectrograms()
+        spectrogram_maker = SpectrogramMaker("AudioData/DC", "Spectrograms/DC")
+        #spectrogram_maker = SpectrogramMaker('/home/ariana/catkin_ws/src/robot_learning/AudioData/DC', '/tmp/SpecData')
+        #spectrogram_maker.make_spectrogram('/home/ariana/catkin_ws/src/robot_learning/AudioData/DC/a01.wav')
+        #spectrogram_maker.make_and_show_dummy()
+        spectrogram_maker.make_all_spectrograms()
+        spectrogram_maker.save_spectrograms()
