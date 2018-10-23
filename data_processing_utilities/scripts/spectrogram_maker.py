@@ -19,7 +19,8 @@ class SpectrogramMaker(object):
         def make_spectrogram(self, path):
                 """ Makes a spectrogram for the given path
                 """
-                rate, data = wavfile.read(path)
+                data, rate = librosa.load(path, sr=16000, res_type='scipy')
+                print(data.dtype)
                 S = np.abs(librosa.stft(data))
                 return S
 
@@ -70,6 +71,7 @@ class SpectrogramMaker(object):
 if __name__ == '__main__':
         #spectrogram_maker = SpectrogramMaker("AudioData/DC", "Spectrograms/DC")
         spectrogram_maker = SpectrogramMaker('/home/ariana/catkin_ws/src/robot_learning/AudioData/DC', '/tmp/SpecData')
+        spectrogram_maker.make_spectrogram('/home/ariana/catkin_ws/src/robot_learning/AudioData/DC/a01.wav')
         spectrogram_maker.make_and_show_dummy()
         #spectrogram_maker.make_all_spectrograms()
         #spectrogram_maker.save_spectrograms()
