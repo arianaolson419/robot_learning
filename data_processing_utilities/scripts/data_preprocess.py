@@ -3,6 +3,7 @@
 from scipy.io import wavfile
 from spectrogram_maker import SpectrogramMaker
 import numpy as np
+import matplotlib.pyplot as plt
 
 import re
 
@@ -20,8 +21,11 @@ def sample_info(filename):
     sentence_label = filename[len(emotion_label):]
     return emotion_label, sentence_label
 
-def make_labelled_batch():
-    pass
-
 if __name__ == "__main__":
+    example_file = '/home/ariana/catkin_ws/src/robot_learning/AudioData/DC/a01.wav'
+    spectrogram_maker = SpectrogramMaker('/home/ariana/catkin_ws/src/robot_learning/AudioData', '/home/ariana/catkin_ws/src/robot_learning/Spectrograms')
+    spectrogram = spectrogram_maker.make_spectrogram(example_file)
+    plt.imshow(spectrogram[2].transpose())
+    plt.show()
+    print(spectrogram[2].shape)
     print(sample_info("ap01.wav"))
