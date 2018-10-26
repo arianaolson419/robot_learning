@@ -2,7 +2,7 @@ from scipy import signal, misc
 import librosa
 import librosa.display
 import matplotlib.pyplot as plt
-from os import listdir
+from os import listdir, environ
 from os.path import isfile, join, basename
 import numpy as np
 from PIL import Image
@@ -11,11 +11,14 @@ from scipy.signal import spectrogram
 
 from data_preprocess import data_preprocess
 
+HOME_DIR = environ['HOME']
+
 
 class SpectrogramMaker(object):
-        def __init__(self, input_path, output_path):
+        def __init__(self, input_path, output_path, noise_path):
                 self.input_audio_paths = [join(input_path, f) for f in listdir(input_path) if isfile(join(input_path, f))]
                 self.output_path = output_path
+                self.noise_path = noise_path
                 self.all_spectrograms = []
 
         def make_spectrogram(self, path):
@@ -23,7 +26,7 @@ class SpectrogramMaker(object):
                 """
                 print(path)
                 data, rate = librosa.load(path, sr=16000, res_type='scipy')
-                processed = data_preprocess(data, 'AudioData/BackgroundNoise/chunked') 
+                processed = data_preprocess(data, self.noise_path) 
                 S = np.abs(librosa.stft(processed))
                 return S
 
@@ -74,8 +77,7 @@ class SpectrogramMaker(object):
 
 
 if __name__ == '__main__':
-        spectrogram_maker = SpectrogramMaker("AudioData/TestA", "Spectrograms/DC_noisy")
-        #spectrogram_maker = SpectrogramMaker('/home/ariana/catkin_ws/src/robot_learning/AudioData/DC', '/tmp/SpecData')
+        spectrogram_maker = SpectrogramMaker(join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/TestA"), join(HOME_DIR, "catkin_ws/src/robot_learning/Spectrograms/DC_noisy"), join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/BackgroundNoise/chunked"))
         spectrogram_maker.make_all_spectrograms()
         spectrogram_maker.save_all_spectrograms()
 
