@@ -40,33 +40,19 @@ def sample_info(filename):
     sentence_label = filename[len(emotion_label):]
     return emotion_label, sentence_label
 
-def select_clip(samples, sr=16000, threshold=5e6, length_s=2.0):
+def select_clip(samples, sr=16000, length_s=2):
     length_samples = int(np.floor(sr * length_s))
-    start = -1
-    end = -1
-    for i, sample in enumerate(samples):
-        if sample ** 2 > threshold:
-            start = i
-            end = i + length_samples
-            break
-    if start == -1:
-        print("error: the audio never exceeds the threshold.")
-        return samples[:length_samples]
-    elif end > len(samples):
-        print("error: the requested segment exceeds the size of the audio.")
-        return samples[-length_samples:]
-    else:
-        return samples[start:end]
+    return samples[int((len(samples) - length_samples) / 2) : int((len(samples) + length_samples) / 2)]
 
 def add_background_noise(sample, path_to_chunked_noise, loudness_scaling = 0.5):
     noise_file = random.choice(listdir(path_to_chunked_noise))
-    rate, noise = wavfile.read(join(path_to_chunked_noise, noise_file))
+    noise, rate = librosa.load(join(path_to_chunked_noise, noise_file), sr=16000, res_type='scipy')
     if len(sample) == len(noise):
-        return sample + noise
+        return sample + noise * loudness_scaling
     else:
-        return sample + np.pad(noise, (0, len(sample) - len(noise)), 'wrap')
+        return sample + np.pad(noise * loudness_scaling, (0, len(sample) - len(noise)), 'wrap')
 
-def data_preprocess(samples, path_to_chunked_noise, length_s=2.0, sr=16000, loudness_scaling=0.5):
+def data_preprocess(samples, path_to_chunked_noise, length_s=2.0, sr=16000, loudness_scaling=0.2):
     # TODO: look into normalizing data.
     shortened_clip = select_clip(samples, sr=sr)
     return add_background_noise(shortened_clip, path_to_chunked_noise, loudness_scaling=loudness_scaling)

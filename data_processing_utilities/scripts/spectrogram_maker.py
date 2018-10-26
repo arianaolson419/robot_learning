@@ -21,9 +21,10 @@ class SpectrogramMaker(object):
         def make_spectrogram(self, path):
                 """ Makes a spectrogram for the given path
                 """
+                print(path)
                 data, rate = librosa.load(path, sr=16000, res_type='scipy')
-                processed = data_preprocess(data, '../../BackgroundNoise/chunked') 
-                S = np.abs(librosa.stft(data))
+                processed = data_preprocess(data, 'AudioData/BackgroundNoise/chunked') 
+                S = np.abs(librosa.stft(processed))
                 return S
 
         def make_all_spectrograms(self):
@@ -44,13 +45,14 @@ class SpectrogramMaker(object):
                 if show:
                 	plt.show()
 
-        def save_spectrograms(self):
+        def save_all_spectrograms(self):
                 """ Saves all of the spectrograms to the specified output path with the same filename as input
                 """
+                print("save_all")
                 for spectrogram in self.all_spectrograms:
                         D, basepath = spectrogram
                         output_path = join(self.output_path, basepath[:-3]) + "png"
-                        self.plot_spectrogram(D, output_path, True)
+                        self.plot_spectrogram(D, output_path, False)
 
 
         def make_and_show_dummy(self):
@@ -72,10 +74,9 @@ class SpectrogramMaker(object):
 
 
 if __name__ == '__main__':
-        spectrogram_maker = SpectrogramMaker("../../AudioData/DC", "../../Spectrograms/DC")
+        spectrogram_maker = SpectrogramMaker("AudioData/TestA", "Spectrograms/DC_noisy")
         #spectrogram_maker = SpectrogramMaker('/home/ariana/catkin_ws/src/robot_learning/AudioData/DC', '/tmp/SpecData')
-        S = spectrogram_maker.make_spectrogram('/home/ariana/catkin_ws/src/robot_learning/AudioData/DC/a01.wav')
-        spectrogram_maker.plot_spectrogram(S)
-        #spectrogram_maker.make_and_show_dummy()
-        #spectrogram_maker.make_all_spectrograms()
-        #spectrogram_maker.save_spectrograms()
+        spectrogram_maker.make_all_spectrograms()
+        spectrogram_maker.save_all_spectrograms()
+
+
