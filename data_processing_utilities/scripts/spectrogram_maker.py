@@ -9,7 +9,7 @@ from PIL import Image
 from scipy.io import wavfile
 from scipy.signal import spectrogram
 
-import data_preprocess
+from data_preprocess import data_preprocess
 
 
 class SpectrogramMaker(object):
@@ -22,6 +22,7 @@ class SpectrogramMaker(object):
                 """ Makes a spectrogram for the given path
                 """
                 data, rate = librosa.load(path, sr=16000, res_type='scipy')
+                processed = data_preprocess(data, '../../BackgroundNoise/chunked') 
                 S = np.abs(librosa.stft(data))
                 return S
 
@@ -67,9 +68,10 @@ class SpectrogramMaker(object):
 
 
 if __name__ == '__main__':
-        spectrogram_maker = SpectrogramMaker("AudioData/DC", "Spectrograms/DC")
+        spectrogram_maker = SpectrogramMaker("../../AudioData/DC", "../../Spectrograms/DC")
         #spectrogram_maker = SpectrogramMaker('/home/ariana/catkin_ws/src/robot_learning/AudioData/DC', '/tmp/SpecData')
-        #spectrogram_maker.make_spectrogram('/home/ariana/catkin_ws/src/robot_learning/AudioData/DC/a01.wav')
+        S = spectrogram_maker.make_spectrogram('/home/ariana/catkin_ws/src/robot_learning/AudioData/DC/a01.wav')
+        spectrogram_maker.plot_spectrogram(S)
         #spectrogram_maker.make_and_show_dummy()
-        spectrogram_maker.make_all_spectrograms()
-        spectrogram_maker.save_spectrograms()
+        #spectrogram_maker.make_all_spectrograms()
+        #spectrogram_maker.save_spectrograms()
