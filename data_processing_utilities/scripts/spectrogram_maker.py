@@ -34,12 +34,14 @@ class SpectrogramMaker(object):
         def plot_spectrogram(self, Sxx, path, show = False):
                 """ Plots the given spectrogram, saves it to file
                 """
+                fig = plt.figure(frameon=False)
+                ax = plt.Axes(fig, [0., 0., 1., 1.])
+                ax.set_axis_off()
+                fig.add_axes(ax)
                 pt = librosa.display.specshow(librosa.amplitude_to_db(Sxx, ref=np.max), y_axis='log', x_axis='time')
-                fig = plt.gcf()
                 fig.savefig(path)
                 if show:
                 	plt.show()
-                return pt
 
         def save_spectrograms(self):
                 """ Saves all of the spectrograms to the specified output path with the same filename as input
@@ -47,7 +49,7 @@ class SpectrogramMaker(object):
                 for spectrogram in self.all_spectrograms:
                         D, basepath = spectrogram
                         output_path = join(self.output_path, basepath[:-3]) + "png"
-                        pt = self.plot_spectrogram(D, output_path, True)
+                        self.plot_spectrogram(D, output_path, True)
 
 
         def make_and_show_dummy(self):
