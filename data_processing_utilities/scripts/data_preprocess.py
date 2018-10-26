@@ -61,7 +61,10 @@ def select_clip(samples, sr=16000, threshold=5e6, length_s=2.0):
 def add_background_noise(sample, path_to_chunked_noise, loudness_scaling = 0.5):
     noise_file = random.choice(listdir(path_to_chunked_noise))
     rate, noise = wavfile.read(join(path_to_chunked_noise, noise_file))
-    return sample + noise
+    if len(sample) == len(noise):
+        return sample + noise
+    else:
+        return sample + np.pad(noise, (0, len(sample) - len(noise)), 'wrap')
 
 def data_preprocess(samples, path_to_chunked_noise, length_s=2.0, sr=16000, loudness_scaling=0.5):
     # TODO: look into normalizing data.
