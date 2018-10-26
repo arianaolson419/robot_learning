@@ -1,17 +1,35 @@
 """We are using the SAVEE dataset, which consists of utterances of actors speaking 15 sentences for 7 different emotions. We are only training for 'positive' and 'negative' emotions, so we need to relabel the data and convert it to spectrograms."""
 
 from scipy.io import wavfile
-from spectrogram_maker import SpectrogramMaker
+from scipy.signal import spectrogram
 import numpy as np
 import matplotlib.pyplot as plt
+import librosa.output
+
+from os import listdir
+from os.path import isfile, isdir, join, basename
 
 import argparse
+import random
 import re
 
 SAVEE_EMOTION_FULL_NAME = {'a': 'anger', 'd': 'disgust', 'f': 'fear', 'h': 'happiness', 'n': 'neutral', 'sa': 'sadness', 'su': 'surprise'}
 
 # Negative emotions are given a 0 and positive emotions are given a 1.
 POS_NEG_EMOTION_MAPPING = {'a': 0, 'd': 0, 'f': 0, 'h': 1, 'n': 1, 'sa': 0, 'su': 1}
+
+def partition_data(path, training_percentage=0.10):
+    all_input_files = []
+    for d in listdir(path):
+        subdir_path = join(path, d)
+        if isdir(subdir_path):
+            all_input_files += [join(subdir_path, f) for f in listdir(subdir_path) if isfile(join(subdir_path, f))]
+
+    random.shuffle(all_input_files)
+    training_data = all_input_files[:int(np.ceil(training_percentage * len(all_input_files)))]
+    testing_data = all_input_files[int(np.ceil(training_percentage * len(all_input_files))):]
+
+    return training_data, testing_data
 
 def sample_info(filename):
     """
@@ -22,6 +40,34 @@ def sample_info(filename):
     sentence_label = filename[len(emotion_label):]
     return emotion_label, sentence_label
 
+def select_clip(samples, sr=16000, threshold=5e6, length_s=2.0):
+    length_samples = int(np.floor(sr * length_s))
+    start = -1
+    end = -1
+    for i, sample in enumerate(samples):
+        if sample ** 2 > threshold:
+            start = i
+            end = i + length_samples
+            break
+    if start == -1:
+        print("error: the audio never exceeds the threshold.")
+        return samples[:length_samples]
+    elif end > len(samples):
+        print("error: the requested segment exceeds the size of the audio.")
+        return samples[-length_samples:]
+    else:
+        return samples[start:end]
+
+def add_background_noise(sample, path_to_chunked_noise, loudness_scaling = 0.5):
+    noise_file = random.choice(listdir(path_to_chunked_noise))
+    rate, noise = wavfile.read(join(path_to_chunked_noise, noise_file))
+    return sample + noise
+
+def data_preprocess(samples, path_to_chunked_noise, length_s=2.0, sr=16000, loudness_scaling=0.5):
+    # TODO: look into normalizing data.
+    shortened_clip = select_clip(samples, sr=sr)
+    return add_background_noise(shortened_clip, path_to_chunked_noise, loudness_scaling=loudness_scaling)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     FLAGS = None
@@ -29,10 +75,7 @@ if __name__ == "__main__":
             absolute path to the directory containing the audio examples. Use
             $HOME/catkin_ws/src/robot_learning/AudioData""")
     FLAGS, _ = parser.parse_known_args()
-    example_file = '/home/ariana/catkin_ws/src/robot_learning/AudioData/DC/a01.wav'
-    spectrogram_maker = SpectrogramMaker(FLAGS.audio_path, '/home/ariana/catkin_ws/src/robot_learning/Spectrograms')
-    spectrogram = spectrogram_maker.make_spectrogram(example_file)
-    plt.imshow(spectrogram[2].transpose())
-    plt.show()
-    print(spectrogram[2].shape)
-    print(sample_info("ap01.wav"))
+
+    rate, data = wavfile.read('/home/ariana/catkin_ws/src/robot_learning/AudioData/DC/a01.wav')
+    noised = data_preprocess(data, '/home/ariana/catkin_ws/src/robot_learning/BackgroundNoise/chunked')
+    wavfile.write('/tmp/noised.wav', rate, noised)
