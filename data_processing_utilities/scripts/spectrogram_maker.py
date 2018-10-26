@@ -9,6 +9,8 @@ from PIL import Image
 from scipy.io import wavfile
 from scipy.signal import spectrogram
 
+import data_preprocess
+
 
 class SpectrogramMaker(object):
         def __init__(self, input_path, output_path):
