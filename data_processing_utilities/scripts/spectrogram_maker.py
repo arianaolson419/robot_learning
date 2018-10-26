@@ -31,11 +31,14 @@ class SpectrogramMaker(object):
                 for path in self.input_audio_paths:
                         self.all_spectrograms.append([self.make_spectrogram(path), basename(path)])
 
-        def plot_spectrogram(self, Sxx):
-                """ Plots the given spectrogram
+        def plot_spectrogram(self, Sxx, path, show = False):
+                """ Plots the given spectrogram, saves it to file
                 """
                 pt = librosa.display.specshow(librosa.amplitude_to_db(Sxx, ref=np.max), y_axis='log', x_axis='time')
-                plt.show()
+                fig = plt.gcf()
+                fig.savefig(path)
+                if show:
+                	plt.show()
                 return pt
 
         def save_spectrograms(self):
@@ -44,8 +47,7 @@ class SpectrogramMaker(object):
                 for spectrogram in self.all_spectrograms:
                         D, basepath = spectrogram
                         output_path = join(self.output_path, basepath[:-3]) + "png"
-                        pt = self.plot_spectrogram(D)
-                        plt.savefig(output_path)
+                        pt = self.plot_spectrogram(D, output_path, True)
 
 
         def make_and_show_dummy(self):
@@ -63,11 +65,11 @@ class SpectrogramMaker(object):
                 x = carrier + noise
                 f, t, Sxx = signal.spectrogram(x, fs)
                 plt = self.plot_spectrogram(f, t, Sxx)
-                misc.imsave("test.png", plt)
+                misc.imsave("test.jpg", plt)
 
 
 if __name__ == '__main__':
-        spectrogram_maker = SpectrogramMaker("AudioData/DC", "Spectrograms/DC")
+        spectrogram_maker = SpectrogramMaker("AudioData/TestA", "Spectrograms/DC")
         #spectrogram_maker = SpectrogramMaker('/home/ariana/catkin_ws/src/robot_learning/AudioData/DC', '/tmp/SpecData')
         #spectrogram_maker.make_spectrogram('/home/ariana/catkin_ws/src/robot_learning/AudioData/DC/a01.wav')
         #spectrogram_maker.make_and_show_dummy()
