@@ -44,7 +44,7 @@ class SpectrogramMaker(object):
                 ax.set_axis_off()
                 fig.add_axes(ax)
                 pt = librosa.display.specshow(librosa.amplitude_to_db(Sxx, ref=np.max), y_axis='log', x_axis='time')
-                fig.savefig(path)
+                np.save(path, Sxx)
                 if show:
                 	plt.show()
 
@@ -54,7 +54,7 @@ class SpectrogramMaker(object):
                 print("save_all")
                 for spectrogram in self.all_spectrograms:
                         D, basepath = spectrogram
-                        output_path = join(self.output_path, basepath[:-3]) + "png"
+                        output_path = join(self.output_path, basepath[:-4]) 
                         self.plot_spectrogram(D, output_path, False)
 
 
