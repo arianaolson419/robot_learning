@@ -42,6 +42,8 @@ def sample_info(filename):
 
 def select_clip(samples, sr=16000, length_s=2):
     length_samples = int(np.floor(sr * length_s))
+    if len(samples) < length_samples:
+        return np.pad(sample, (0, length_samples - len(sample)), 'wrap')
     return samples[int((len(samples) - length_samples) / 2) : int((len(samples) + length_samples) / 2)]
 
 def add_background_noise(sample, path_to_chunked_noise, loudness_scaling = 0.5):
@@ -49,8 +51,10 @@ def add_background_noise(sample, path_to_chunked_noise, loudness_scaling = 0.5):
     noise, rate = librosa.load(join(path_to_chunked_noise, noise_file), sr=16000, res_type='scipy')
     if len(sample) == len(noise):
         return sample + noise * loudness_scaling
-    else:
+    elif len(sample) > len(noise):
         return sample + np.pad(noise * loudness_scaling, (0, len(sample) - len(noise)), 'wrap')
+    else:
+        return sample + noise[0 : len(sample)]
 
 def data_preprocess(samples, path_to_chunked_noise, length_s=2.0, sr=16000, loudness_scaling=0.2):
     # TODO: look into normalizing data.
