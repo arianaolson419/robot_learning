@@ -2,7 +2,7 @@ from scipy import signal, misc
 import librosa
 import librosa.display
 import matplotlib.pyplot as plt
-from os import listdir
+from os import listdir, environ
 from os.path import isfile, join, basename
 import numpy as np
 from PIL import Image
@@ -11,19 +11,23 @@ from scipy.signal import spectrogram
 
 from data_preprocess import data_preprocess
 
+HOME_DIR = environ['HOME']
+
 
 class SpectrogramMaker(object):
-        def __init__(self, input_path, output_path):
+        def __init__(self, input_path, output_path, noise_path):
                 self.input_audio_paths = [join(input_path, f) for f in listdir(input_path) if isfile(join(input_path, f))]
                 self.output_path = output_path
+                self.noise_path = noise_path
                 self.all_spectrograms = []
 
         def make_spectrogram(self, path):
                 """ Makes a spectrogram for the given path
                 """
+                print(path)
                 data, rate = librosa.load(path, sr=16000, res_type='scipy')
-                processed = data_preprocess(data, '../../BackgroundNoise/chunked') 
-                S = np.abs(librosa.stft(data))
+                processed = data_preprocess(data, self.noise_path) 
+                S = np.abs(librosa.stft(processed))
                 return S
 
         def make_all_spectrograms(self):
@@ -35,20 +39,23 @@ class SpectrogramMaker(object):
         def plot_spectrogram(self, Sxx, path, show = False):
                 """ Plots the given spectrogram, saves it to file
                 """
+                fig = plt.figure(frameon=False)
+                ax = plt.Axes(fig, [0., 0., 1., 1.])
+                ax.set_axis_off()
+                fig.add_axes(ax)
                 pt = librosa.display.specshow(librosa.amplitude_to_db(Sxx, ref=np.max), y_axis='log', x_axis='time')
-                fig = plt.gcf()
-                fig.savefig(path)
+                np.save(path, Sxx)
                 if show:
                 	plt.show()
-                return pt
 
-        def save_spectrograms(self):
+        def save_all_spectrograms(self):
                 """ Saves all of the spectrograms to the specified output path with the same filename as input
                 """
+                print("save_all")
                 for spectrogram in self.all_spectrograms:
                         D, basepath = spectrogram
-                        output_path = join(self.output_path, basepath[:-3]) + "png"
-                        pt = self.plot_spectrogram(D, output_path, True)
+                        output_path = join(self.output_path, basepath[:-4]) 
+                        self.plot_spectrogram(D, output_path, False)
 
 
         def make_and_show_dummy(self):
@@ -70,10 +77,8 @@ class SpectrogramMaker(object):
 
 
 if __name__ == '__main__':
-        spectrogram_maker = SpectrogramMaker("../../AudioData/DC", "../../Spectrograms/DC")
-        #spectrogram_maker = SpectrogramMaker('/home/ariana/catkin_ws/src/robot_learning/AudioData/DC', '/tmp/SpecData')
-        S = spectrogram_maker.make_spectrogram('/home/ariana/catkin_ws/src/robot_learning/AudioData/DC/a01.wav')
-        spectrogram_maker.plot_spectrogram(S)
-        #spectrogram_maker.make_and_show_dummy()
-        #spectrogram_maker.make_all_spectrograms()
-        #spectrogram_maker.save_spectrograms()
+        spectrogram_maker = SpectrogramMaker(join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/TestA"), join(HOME_DIR, "catkin_ws/src/robot_learning/Spectrograms/DC_noisy"), join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/BackgroundNoise/chunked"))
+        spectrogram_maker.make_all_spectrograms()
+        spectrogram_maker.save_all_spectrograms()
+
+
