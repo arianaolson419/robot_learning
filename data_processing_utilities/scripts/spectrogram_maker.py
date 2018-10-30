@@ -55,7 +55,7 @@ class SpectrogramMaker(object):
                 for spectrogram in self.all_spectrograms:
                         D, basepath = spectrogram
                         output_path = join(self.output_path, basepath[:-4]) 
-                        np.save(output_path, Sxx)
+                        np.save(output_path, D)
                        	if as_image:
                         	self.plot_spectrogram(D, output_path, False)
 
@@ -79,7 +79,7 @@ class SpectrogramMaker(object):
 
 
 if __name__ == '__main__':
-        spectrogram_maker = SpectrogramMaker(join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/JE"), join(HOME_DIR, "catkin_ws/src/robot_learning/Spectrograms"), join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/BackgroundNoise/chunked"))
+        spectrogram_maker = SpectrogramMaker(join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/KL"), join(HOME_DIR, "catkin_ws/src/robot_learning/Spectrograms/KL"), join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/BackgroundNoise/chunked"))
         spectrogram_maker.make_all_spectrograms()
         spectrogram_maker.save_all_spectrograms()
 

@@ -16,7 +16,7 @@ import re
 SAVEE_EMOTION_FULL_NAME = {'a': 'anger', 'd': 'disgust', 'f': 'fear', 'h': 'happiness', 'n': 'neutral', 'sa': 'sadness', 'su': 'surprise'}
 
 # Negative emotions are given a 0 and positive emotions are given a 1.
-POS_NEG_EMOTION_MAPPING = {'a': 0.0, 'd': 0.0, 'f': 0.0, 'h': 1.0, 'n': 1.0, 'sa': 0.0, 'su': 1.0}
+POS_NEG_EMOTION_MAPPING = {'a': 0, 'd': 0, 'f': 0, 'h': 1, 'n': 1, 'sa': 0, 'su': 1}
 
 def partition_data(path, training_percentage=0.10):
     all_input_files = []
@@ -43,7 +43,9 @@ def sample_info(filename):
 def get_label(filename):
     filename = filename.split('/')[-1]
     e, _ = sample_info(filename)
-    return POS_NEG_EMOTION_MAPPING[e]
+    label = np.zeros((2,))
+    label[POS_NEG_EMOTION_MAPPING[e]] = 1.0
+    return label
 
 def select_clip(samples, sr=16000, length_s=2):
     length_samples = int(np.floor(sr * length_s))
