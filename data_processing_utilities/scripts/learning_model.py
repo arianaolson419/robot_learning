@@ -1,13 +1,17 @@
 import tensorflow.keras as keras
+import numpy as np
 from data_preprocess import partition_data, sample_info
 
 train, valid = partition_data('../../Spectrograms', 0.9)
 # Training data
+train_data = np.array([np.load(t) for t in train])
+print(train_data[1].shape)
 training_labels = [sample_info(f) for f in train]
 # Validation data
-validation_labels = [sample_info(f) for f in validation]
+valid_data = np.array([np.load(v) for v in valid])
+validation_labels = [sample_info(f) for f in valid]
 
-inputs = keras.layers.Input(shape=(1025, 114, 1))
+inputs = keras.layers.Input(shape=(1025, 63, 1))
 conv1 = keras.layers.Conv2D(64, (8, 8), strides=(10, 3), padding='same', activation='relu')(inputs)
 conv2 = keras.layers.Conv2D(128, (8, 8), strides=(5, 2), padding='same', activation='relu')(conv1)
 conv3 = keras.layers.Conv2D(256, (5, 5), strides=(3, 3), padding='same', activation='relu')(conv2)
@@ -20,4 +24,4 @@ model = keras.models.Model(inputs=inputs, outputs=prediction)
 model.compile(loss='sparse_categorical_crossentropy', optimizer='adam')
 model.summary()
 
-model.fit(train, training_labels, validation_data=(valid, validation_labels), epochs=10)
+model.fit(train_data, training_labels, validation_data=(valid_data, validation_labels), epochs=10)
