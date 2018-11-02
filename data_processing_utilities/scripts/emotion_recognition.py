@@ -6,6 +6,7 @@ from geometry_msgs.msg import Twist
 import librosa
 import numpy as np
 from data_preprocess import select_clip
+import os
 
 
 NEGATIVE = -1
@@ -18,11 +19,15 @@ class EmotionRecognition(object):
         self.publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.model = load_model('cnn.h5')
         self.mood = NEUTRAL
+        # self.pi = pxssh.pxssh()
+        # if not s.login('192.168.17.201', 'pi', 'raspberry'):
+        # 	print "SSH shession failed on login"
 
     def interpret_mic_input(self):
         """If the spectrogram is viable audio, detect emotion and make the robot move
         """
-        data, rate = librosa.load("../../AudioData/DC/h02.wav", sr=16000, res_type='scipy')
+        os.system("bash recorder.sh")
+        data, rate = librosa.load("recordings/recording_.wav", sr=16000, res_type='scipy')
         processed = select_clip(data)
         S = np.abs(librosa.stft(processed))
         S = np.expand_dims([S], axis=3)
@@ -58,8 +63,15 @@ class EmotionRecognition(object):
     	elif self.mood == NEGATIVE:
     		self.publish_negative()
 
+    def main(self):
+    	r = rospy.Rate(0.45)
+    	while not rospy.is_shutdown():
+    		self.interpret_mic_input()
+    		r.sleep()
+
+
 
 if __name__ == '__main__':
 	emotion_recognition = EmotionRecognition()
-	emotion_recognition.interpret_mic_input()
+	emotion_recognition.main()
 
