@@ -11,4 +11,6 @@ def class EmotionRecgonition(object):
         self.model = load_model('emotion_cnn.h5')
 
     def interpret_mic_input(self):
-        """If the spectrogram is viable audio, 
+        """If the spectrogram is viable audio, detect emotion and make the robot move
+        """
+        pass
