@@ -79,7 +79,7 @@ class SpectrogramMaker(object):
 
 
 if __name__ == '__main__':
-        spectrogram_maker = SpectrogramMaker(join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/KL"), join(HOME_DIR, "catkin_ws/src/robot_learning/Spectrograms/KL"), join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/BackgroundNoise/chunked"))
+        spectrogram_maker = SpectrogramMaker(join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/DC"), join(HOME_DIR, "catkin_ws/src/robot_learning/Spectrograms/DC"), join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/BackgroundNoise/chunked"))
         spectrogram_maker.make_all_spectrograms()
         spectrogram_maker.save_all_spectrograms()
 
