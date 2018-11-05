@@ -28,7 +28,7 @@ class EmotionRecognition(object):
         """
         os.system("bash recorder.sh")
         data, rate = librosa.load("recordings/recording_.wav", sr=16000, res_type='scipy')
-        processed = select_clip(data)
+        processed = recording_preprocess(data)
         S = np.abs(librosa.stft(processed))
         S = np.expand_dims([S], axis=3)
         out = self.model.predict(S)
