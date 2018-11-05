@@ -138,6 +138,12 @@ def normalize_audio(data):
     data_db += diff
     return librosa.db_to_amplitude(data_db)
 
+def recording_preprocess(samples, length_s=2.0, sr=16000):
+    """Preprocess a signal recorded from the raspberry pi.
+    """
+    shortened_clip = select_clip(samples, sr)
+    return normalize_audio(shortened_clip)
+
 def data_preprocess(samples, path_to_chunked_noise, length_s=2.0, sr=16000, loudness_scaling=0.2):
     """Preprocess audio from the dataset to be made into a spectrogram.
 
