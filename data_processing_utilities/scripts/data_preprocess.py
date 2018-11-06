@@ -1,4 +1,9 @@
-"""We are using the SAVEE dataset, which consists of utterances of actors speaking 15 sentences for 7 different emotions. We are only training for 'positive' and 'negative' emotions, so we need to relabel the data and convert it to spectrograms."""
+"""This module contains functions to be used to preprocess audio data before
+turning it into a spectrogram for input into the neural network and functions
+to partition and label spectrograms for input into the network.
+
+Authors: Anna Buchele, Ariana Olson
+"""
 
 import numpy as np
 import librosa
@@ -111,11 +116,11 @@ def add_background_noise(sample, path_to_chunked_noise, loudness_scaling = 0.5):
     noise_file = random.choice(listdir(path_to_chunked_noise))
     noise, rate = librosa.load(join(path_to_chunked_noise, noise_file), sr=16000, res_type='scipy')
     if len(sample) == len(noise):
-        return sample + noise * loudness_scaling
+        return sample * (1 - loudness_scaling) + noise * loudness_scaling
     elif len(sample) > len(noise):
-        return sample + np.pad(noise * loudness_scaling, (0, len(sample) - len(noise)), 'wrap')
+        return sample * (1 - loudness_scaling) + np.pad(noise * loudness_scaling, (0, len(sample) - len(noise)), 'wrap')
     else:
-        return sample + noise[0 : len(sample)]
+        return sample * (1 - loudness_scaling) + noise[0 : len(sample)] * loudness_scaling
 
 def normalize_audio(data):
     """Calculates and normalizes the loudness of the audio to a target value.
@@ -139,7 +144,23 @@ def normalize_audio(data):
     return librosa.db_to_amplitude(data_db)
 
 def recording_preprocess(samples, length_s=2.0, sr=16000):
-    """Preprocess a signal recorded from the raspberry pi.
+    """Preprocess an audio signal recorded from the raspberry pi to be made
+    into a spectrogram.
+
+    This is the same processing that happens in data_preprocess, except no
+    background noise is added.
+
+    Parameters
+    ----------
+    samples: a numpy array of single-channel floating point audio data
+    length_s: the number of seconds to shorten the preprocessed audio to.
+        Defaults to 2.0s.
+    sr: the sample rate, in Hz, of the audio clip. Defaults to 16000 Hz.
+
+    Returns
+    -------
+    A numpy array of single channel floating point audio representing a
+        shortened recording. The RMS loudness is normalized to -24dB.
     """
     shortened_clip = select_clip(samples, sr)
     return normalize_audio(shortened_clip)
@@ -165,5 +186,6 @@ def data_preprocess(samples, path_to_chunked_noise, length_s=2.0, sr=16000, loud
         loudness is normalized to -24dB.
     """
     shortened_clip = select_clip(samples, sr=sr)
+    # Noise is added before normalization.
     noise_added = add_background_noise(shortened_clip, path_to_chunked_noise, loudness_scaling=loudness_scaling)
     return normalize_audio(noise_added)
