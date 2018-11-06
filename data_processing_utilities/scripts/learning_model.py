@@ -15,6 +15,7 @@ the dataset as per the instructions in spectrogram_maker.
 import tensorflow.keras as keras
 import numpy as np
 from data_preprocess import partition_data, get_label, plot_spectrogram
+from pyAudioAnalysis import audioTrainTest as aT
 
 
 def train_nn(randomize_labels = False):
@@ -77,8 +78,14 @@ def train_nn(randomize_labels = False):
 	print("Number of correct answers: %d \n Number of wrong answers: %d \n Percent accuracy: %f" % (num_correct, num_wrong, num_correct/float(len(valid_predicted))))
 	return num_correct/float(len(valid_predicted))
 
+def nonlearning():
+	"""
+	Using pyAudioAnalysis package to train parameters for classification of emotion. Sorted chunked data into positive and negative categories, 
+	then followed the documentation here: https://github.com/tyiannak/pyAudioAnalysis/wiki/4.-Classification-and-Regression
+	"""
+	aT.featureAndTrain(['../../AudioData/chunked_data_sorted/pos', '../../AudioData/chunked_data_sorted/neg'], 
+						1.0, 1.0, aT.shortTermWindow, aT.shortTermStep, 
+                    "svm", "emotion_classifier", True)
+
 if __name__ == '__main__':
-	out = 0
-	for i in range(1):
-		out += train_nn()
-	print(out/float(1))
+	nonlearning()
