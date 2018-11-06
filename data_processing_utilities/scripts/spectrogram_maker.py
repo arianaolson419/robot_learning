@@ -26,7 +26,7 @@ class SpectrogramMaker(object):
                 """
                 print(path)
                 data, rate = librosa.load(path, sr=16000, res_type='scipy')
-                processed = data_preprocess(data, self.noise_path) 
+                processed = data_preprocess(data, self.noise_path, length_s=1.0) 
                 S = np.abs(librosa.stft(processed))
                 return S
 
@@ -79,7 +79,7 @@ class SpectrogramMaker(object):
 
 
 if __name__ == '__main__':
-        spectrogram_maker = SpectrogramMaker(join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/DC"), join(HOME_DIR, "catkin_ws/src/robot_learning/Spectrograms/DC"), join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/BackgroundNoise/chunked"))
+        spectrogram_maker = SpectrogramMaker(join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/chunked_data/JE"), join(HOME_DIR, "catkin_ws/src/robot_learning/Spectrograms/JE_test"), join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/BackgroundNoise/chunked"))
         spectrogram_maker.make_all_spectrograms()
         spectrogram_maker.save_all_spectrograms()
 
