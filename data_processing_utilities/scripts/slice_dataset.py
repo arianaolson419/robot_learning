@@ -1,3 +1,14 @@
+"""This script is used to slice the clips in the dataset into smaller chunks of
+audio. The goal of doing this is to create more data for the network to use and
+to standardize the size of the input audio, as all of the clips are different
+lengths.
+
+Authors: Anna Buchele, Ariana Olson
+
+Flags
+-----
+--chunk_length: The length in seconds to make each chunk of background noise.
+"""
 import scipy.io.wavfile as wav
 import numpy as np
 import argparse

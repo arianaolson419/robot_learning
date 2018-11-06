@@ -1,3 +1,17 @@
+"""This script is for training a learning model using the spectrograms of clips
+from the dataset.
+
+Authors: Anna Buchele, Ariana Olson
+
+Usage
+-----
+* Create spectrograms using spectrogram_maker.py
+    python spectrogram_maker.py
+Remember to change the source and destination directories for each speaker in
+the dataset as per the instructions in spectrogram_maker.
+* Train the network
+    python learning_model.py
+"""
 import tensorflow.keras as keras
 import numpy as np
 from data_preprocess import partition_data, get_label, plot_spectrogram

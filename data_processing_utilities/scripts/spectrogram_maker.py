@@ -1,3 +1,16 @@
+"""This script generates and saves spectrograms of clips from one speaker in the
+dataset. The audio first has background noise added and the RMS loudness
+normalized to a target -24dB
+
+Authors: Anna Buchele, Ariana Olson
+
+Usage
+-----
+* Change the speaker
+    The spectrogram maker makes spectrograms for one directory at a time. To
+    change the speaker, the path to the data and the destination path have to be
+    changed at the bottom of this script.
+"""
 from scipy import signal, misc
 import librosa
 import librosa.display
@@ -85,5 +98,3 @@ if __name__ == '__main__':
         spectrogram_maker = SpectrogramMaker(join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/chunked_data/" + directory), join(HOME_DIR, "catkin_ws/src/robot_learning/Spectrograms/" + directory), join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/BackgroundNoise/chunked"))
         spectrogram_maker.make_all_spectrograms()
         spectrogram_maker.save_all_spectrograms()
-
-
