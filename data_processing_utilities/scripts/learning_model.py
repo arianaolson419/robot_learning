@@ -6,7 +6,6 @@ train, valid = partition_data('../../Spectrograms', 0.9)
 # Training data
 train_data = np.expand_dims(np.array([np.load(t) for t in train]), axis=3)
 training_labels = np.array([get_label(f) for f in train])
-print(training_labels.shape)
 # Validation data
 valid_data = np.expand_dims(np.array([np.load(v) for v in valid]), axis=3)
 validation_labels = np.array([get_label(f) for f in valid])
@@ -24,6 +23,5 @@ model.add(keras.layers.Dense(2, activation='softmax'))
 model.compile(loss='categorical_crossentropy', optimizer='adam')
 model.summary()
 
-print(train_data.shape, training_labels.shape, valid_data.shape, validation_labels.shape)
-model.fit(train_data, training_labels, validation_data=(valid_data, validation_labels), epochs=11)
+model.fit(train_data, training_labels, validation_data=(valid_data, validation_labels), epochs=10)
 #model.save('cnn.h5')
