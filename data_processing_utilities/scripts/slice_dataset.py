@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument(
         '--chunk_length',
         type=float,
-        default=1.0,
+        default=0.5,
         help = "The length in seconds to make each chunk of background noise.")
 
 dataset_directories = ['DC', 'JE', 'JK', 'KL']

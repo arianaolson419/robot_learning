@@ -26,7 +26,7 @@ class SpectrogramMaker(object):
                 """
                 print(path)
                 data, rate = librosa.load(path, sr=16000, res_type='scipy')
-                processed = data_preprocess(data, self.noise_path, length_s=1.0) 
+                processed = data_preprocess(data, self.noise_path, length_s=0.5) 
                 S = np.abs(librosa.stft(processed))
                 return S
 
@@ -36,7 +36,7 @@ class SpectrogramMaker(object):
                 for path in self.input_audio_paths:
                         self.all_spectrograms.append([self.make_spectrogram(path), basename(path)])
 
-        def plot_spectrogram(self, Sxx, path, show = False):
+        def plot_spectrogram(self, Sxx, path = "", show = False, save = False):
                 """ Plots the given spectrogram, saves it to file
                 """
                 fig = plt.figure(frameon=False)
@@ -44,9 +44,10 @@ class SpectrogramMaker(object):
                 ax.set_axis_off()
                 fig.add_axes(ax)
                 pt = librosa.display.specshow(librosa.amplitude_to_db(Sxx, ref=np.max), y_axis='log', x_axis='time')
-                fig.savefig(path)
                 if show:
                 	plt.show()
+                if save:
+                        fig.savefig(path)
 
         def save_all_spectrograms(self, as_image = False):
                 """ Saves all of the spectrograms to the specified output path with the same filename as input
@@ -55,9 +56,10 @@ class SpectrogramMaker(object):
                 for spectrogram in self.all_spectrograms:
                         D, basepath = spectrogram
                         output_path = join(self.output_path, basepath[:-4]) 
-                        np.save(output_path, D)
                        	if as_image:
-                        	self.plot_spectrogram(D, output_path, False)
+                        	self.plot_spectrogram(D, output_path, True)
+                        else:
+                                np.save(output_path, D)
 
 
         def make_and_show_dummy(self):
@@ -79,7 +81,8 @@ class SpectrogramMaker(object):
 
 
 if __name__ == '__main__':
-        spectrogram_maker = SpectrogramMaker(join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/chunked_data/JE"), join(HOME_DIR, "catkin_ws/src/robot_learning/Spectrograms/JE_test"), join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/BackgroundNoise/chunked"))
+        directory = "KL"
+        spectrogram_maker = SpectrogramMaker(join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/chunked_data/" + directory), join(HOME_DIR, "catkin_ws/src/robot_learning/Spectrograms/" + directory), join(HOME_DIR, "catkin_ws/src/robot_learning/AudioData/BackgroundNoise/chunked"))
         spectrogram_maker.make_all_spectrograms()
         spectrogram_maker.save_all_spectrograms()
 

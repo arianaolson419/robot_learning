@@ -2,6 +2,7 @@
 
 import numpy as np
 import librosa
+import librosa.display
 
 from os import listdir
 from os.path import isfile, isdir, join
@@ -9,11 +10,23 @@ from os.path import isfile, isdir, join
 import random
 import re
 
+import matplotlib.pyplot as plt
+
 # For nicer print statements
 SAVEE_EMOTION_FULL_NAME = {'a': 'anger', 'd': 'disgust', 'f': 'fear', 'h': 'happiness', 'n': 'neutral', 'sa': 'sadness', 'su': 'surprise'}
 
 # Negative emotions are given a 0 and positive emotions are given a 1.
 POS_NEG_EMOTION_MAPPING = {'a': 0, 'd': 0, 'f': 0, 'h': 1, 'n': 1, 'sa': 0, 'su': 1}
+
+def plot_spectrogram(Sxx):
+    """ Plots the given spectrogram, saves it to file
+    """
+    fig = plt.figure(frameon=False)
+    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    ax.set_axis_off()
+    fig.add_axes(ax)
+    pt = librosa.display.specshow(librosa.amplitude_to_db(Sxx[:,:,0], ref=np.max), y_axis='log', x_axis='time')
+    plt.show()
 
 def partition_data(path, training_percentage=0.90):
     """Partitions all generated spectrograms into a training and a validation set.
@@ -110,12 +123,13 @@ def add_background_noise(sample, path_to_chunked_noise, loudness_scaling = 0.5):
     """
     noise_file = random.choice(listdir(path_to_chunked_noise))
     noise, rate = librosa.load(join(path_to_chunked_noise, noise_file), sr=16000, res_type='scipy')
-    if len(sample) == len(noise):
-        return sample + noise * loudness_scaling
+    noise_normal = normalize_audio(noise)
+    if len(sample) == len(noise_normal):
+        return sample + noise_normal * loudness_scaling
     elif len(sample) > len(noise):
-        return sample + np.pad(noise * loudness_scaling, (0, len(sample) - len(noise)), 'wrap')
+        return sample + np.pad(noise_normal * loudness_scaling, (0, len(sample) - len(noise_normal)), 'wrap')
     else:
-        return sample + noise[0 : len(sample)]
+        return sample + noise_normal[0 : len(sample)]
 
 def normalize_audio(data):
     """Calculates and normalizes the loudness of the audio to a target value.
@@ -144,7 +158,7 @@ def recording_preprocess(samples, length_s=2.0, sr=16000):
     shortened_clip = select_clip(samples, sr)
     return normalize_audio(shortened_clip)
 
-def data_preprocess(samples, path_to_chunked_noise, length_s=2.0, sr=16000, loudness_scaling=0.2):
+def data_preprocess(samples, path_to_chunked_noise, length_s=2.0, sr=16000, loudness_scaling=0.1):
     """Preprocess audio from the dataset to be made into a spectrogram.
 
     Parameters
